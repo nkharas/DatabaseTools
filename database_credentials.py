@@ -1,6 +1,7 @@
 db_credentials = dict()
 
-db_credentials['server'] = 'pypitest.cdha2emxboll.us-east-2.rds.amazonaws.com'
-db_credentials['database'] = 'pypitest'
-db_credentials['uid'] = 'admin'
-db_credentials['pwd'] = 'pythontest12'
+# Enter your own credentials when testing
+db_credentials['server'] = '#########.######.com'
+db_credentials['database'] = '######'
+db_credentials['uid'] = '######' # User name
+db_credentials['pwd'] = '######' # Password

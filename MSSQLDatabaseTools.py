@@ -16,7 +16,7 @@ class MSSQLDatabaseTools(DatabaseTools):
     """Specific implementation for Microsoft SQL Server
     """
 
-    def __init__(self, server, database, uid='', pwd='', trusted_connection=True):
+    def __init__(self, server, database, uid='', pwd='', driver='SQL Server Native Client 11.0', trusted_connection=True):
         """Overriding constructor with specific database driver details. Default behavior is to support Windows authentication.
         :param server: Name of the database server.
         :param database: Name of the database.
@@ -29,7 +29,7 @@ class MSSQLDatabaseTools(DatabaseTools):
         self.uid = uid
         self.pwd = pwd
         self.trusted_connection = trusted_connection
-        self.driver = 'SQL Server Native Client 11.0'
+        self.driver = driver
         self.default_schema = 'dbo'
         self.table_metadata = 'sys.tables'
 
@@ -39,7 +39,8 @@ class MSSQLDatabaseTools(DatabaseTools):
                     'ERROR - AUTHENTICATION: Cannot use Windows Authentication if user name and password is provided')
         except InputError as ie:
             # print(ie.message)
-            raise sys.exit(1)
+            raise ie
+            # sys.exit(1)
 
     def connect_to_db(self):
         """Override DB Connection to allow for Windows Authentication
@@ -127,8 +128,8 @@ class MSSQLDatabaseTools(DatabaseTools):
         :param batch_size: Number of rows that get BCP inserted into the table in one batch.
         """
 
-        file_zip = zipfile.ZipFile(file_path + '\\' + name, 'r')
-        for unzipped_name in xml_zip.namelist():
+        file_zip = zipfile.ZipFile(file_name)
+        for unzipped_name in file_zip.namelist():
             data = file_zip.read(unzipped_name)
             data_decode = io.StringIO(data.decode('utf_8'))
             df = pd.read_csv(data_decode, dtype=str, delimiter=delimiter)

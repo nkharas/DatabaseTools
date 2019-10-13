@@ -33,14 +33,9 @@ class MSSQLDatabaseTools(DatabaseTools):
         self.default_schema = 'dbo'
         self.table_metadata = 'sys.tables'
 
-        try:
-            if (len(self.uid) > 0 or len(self.pwd) > 0) and self.trusted_connection:
-                raise InputError(
-                    'ERROR - AUTHENTICATION: Cannot use Windows Authentication if user name and password is provided')
-        except InputError as ie:
-            # print(ie.message)
-            raise ie
-            # sys.exit(1)
+        if (len(self.uid) > 0 or len(self.pwd) > 0) and self.trusted_connection:
+            raise InputError(
+                'ERROR - AUTHENTICATION: Cannot use Windows Authentication if user name and password is provided')
 
     def connect_to_db(self):
         """Override DB Connection to allow for Windows Authentication

@@ -1,6 +1,5 @@
 # Author : Nick Kharas
 
-#Importing libraries
 import pyodbc as db
 import pandas as pd
 import sys
@@ -28,30 +27,29 @@ class DatabaseTools:
         self.database = database
         self.uid = uid
         self.pwd = pwd
-        self.trusted_connection = trusted_connection
         self.driver = driver
         self.default_schema = default_schema
         self.table_metadata = table_metadata
-    
 
     def connect_to_db(self):
         """Establish DB Connection to use in database operations
         """
-        cnxn = db.connect(r'Driver={' + self.driver + '};Server=' + self.server + ';Database=' + self.database + ';UID=' + self.uid + ';PWD=' + self.pwd)
+        cnxn = db.connect(r'Driver={' + self.driver + '};Server=' + self.server +
+                          ';Database=' + self.database + ';UID=' + self.uid + ';PWD=' + self.pwd)
         return cnxn
-
 
     def is_table_exists(self, table_name):
         """Return True if the table already exists in the database, False otherwise
         :param table_name: Name of the table to check
         """
 
-        #Setting the connection
+        # Setting the connection
         cnxn = cnxn = self.connect_to_db()
         cursor = cnxn.cursor()
 
         # Check if table exists, note that checking in sys.tables is very specific to MSSQL Server
-        cursor.execute("select * from " + self.table_metadata + " where name = '" + table_name + "'")
+        cursor.execute("select * from " + self.table_metadata +
+                       " where name = '" + table_name + "'")
 
         # If query retruns a result, return True, else return False
         output = cursor.fetchall()
@@ -61,30 +59,28 @@ class DatabaseTools:
         else:
             return False
 
-
     def drop_table_if_exists(self, table_name):
         """Drop the table if it exists
         :param table_name: Name of the table to drop
         """
 
         if self.is_table_exists(table_name):
-            #Setting the connection
+            # Setting the connection
             cnxn = self.connect_to_db()
             cursor = cnxn.cursor()
 
             # Check if table exists, note that checking in sys.tables is very specific to MSSQL Server
             cursor.execute('drop table ' + table_name)
             cursor.commit()
-        
-        
-    def download_from_table(self, table_name, where_clause = '', file_name = '', schema = ''):
+
+    def download_from_table(self, table_name, where_clause='', file_name='', schema=''):
         """Download all data from a SQL table into a flat file and pandas dataframe
         :param table_name: Name of the table to select data and download from
         :param where_clause: Optional parameter. Where clause to filter the data.
         :param file_name: Optional parameter. Name of the output file. Default is to use the input table name as the output file name.
         :param schema: Name of the schema where table belongs
         """
-        #Setting the connection
+        # Setting the connection
         cnxn = self.connect_to_db()
         cursor = cnxn.cursor()
 
@@ -97,28 +93,23 @@ class DatabaseTools:
 
         if len(schema) == 0:
             schema = self.default_schema
-        
-        #Running the query
-        cursor.execute('select * from ' + schema + '.' + table_name + ' ' + where_clause)
 
-        #Fetching first object ( column name) from tuple returned by cursor.description
+        # Running the query
+        cursor.execute('select * from ' + schema + '.' +
+                       table_name + ' ' + where_clause)
+
+        # Fetching first object ( column name) from tuple returned by cursor.description
         output_cols = [i[0] for i in cursor.description]
 
-        #Loading all the result rows
+        # Loading all the result rows
         output = cursor.fetchall()
 
-        #Converting tuples to list
+        # Converting tuples to list
         output_list = [list(i) for i in output]
 
-        #Creating dataframe
-        df = pd.DataFrame(data=output_list,columns=output_cols)
+        # Creating dataframe
+        df = pd.DataFrame(data=output_list, columns=output_cols)
 
         # Create CSV file
-        df.to_csv(file_name + '.csv', index = False, index_label = False)
+        df.to_csv(file_name + '.csv', index=False, index_label=False)
         return df
-
-
-
-
-
-
